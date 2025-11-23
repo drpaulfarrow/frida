@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌟 Fun Math Adventure! 🌟</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Arial Rounded MT Bold', cursive;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #ff6b6b;
+            text-align: center;
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 3px 3px 0px #feca57;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #5f27cd;
+            font-size: 1.5em;
+            margin-bottom: 30px;
+        }
+
+        .score-board {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .stat-box .label {
+            font-size: 0.8em;
+            opacity: 0.9;
+        }
+
+        .stat-box .value {
+            font-size: 1.3em;
+            margin-top: 5px;
+        }
+
+        .timer-box {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2em;
+            font-weight: bold;
+            color: #2d3436;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .timer-box.warning {
+            background: linear-gradient(135deg, #ff7675 0%, #d63031 100%);
+            color: white;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .question-card {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            border: 5px solid #ff6b6b;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .question-text {
+            font-size: 1.8em;
+            color: #2d3436;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .animal-picture {
+            font-size: 4em;
+            text-align: center;
+            margin: 20px 0;
+            user-select: none;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .option-btn {
+            padding: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #ffd93d 0%, #ff6b6b 100%);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            font-family: 'Comic Sans MS', cursive;
+        }
+
+        .option-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .option-btn:active {
+            transform: scale(0.95);
+        }
+
+        .feedback {
+            text-align: center;
+            font-size: 2em;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 15px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .feedback.correct {
+            background: #00d2ff;
+            color: white;
+            animation: celebrate 0.5s;
+            display: block;
+        }
+
+        .feedback.incorrect {
+            background: #ffbe76;
+            color: #2d3436;
+            display: block;
+        }
+
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.1) rotate(-5deg); }
+            75% { transform: scale(1.1) rotate(5deg); }
+        }
+
+        .next-btn {
+            width: 100%;
+            padding: 20px;
+            font-size: 1.8em;
+            font-weight: bold;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #48c6ef 0%, #6f86d6 100%);
+            color: white;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            font-family: 'Comic Sans MS', cursive;
+            display: none;
+        }
+
+        .next-btn:hover {
+            transform: scale(1.02);
+        }
+
+        .celebration {
+            font-size: 5em;
+            text-align: center;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .stars {
+            text-align: center;
+            font-size: 3em;
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            background: #dfe6e9;
+            height: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #00b894, #00cec9);
+            height: 100%;
+            transition: width 0.5s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .completion-screen {
+            text-align: center;
+            display: none;
+        }
+
+        .completion-screen h2 {
+            font-size: 3em;
+            color: #6c5ce7;
+            margin: 20px 0;
+        }
+
+        .restart-btn {
+            padding: 20px 40px;
+            font-size: 1.5em;
+            font-weight: bold;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            font-family: 'Comic Sans MS', cursive;
+        }
+
+        .restart-btn:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌟 Math Adventure! 🌟</h1>
+        <p class="subtitle">Let's learn and have fun!</p>
+        
+        <div class="timer-box" id="timerBox">
+            ⏰ Time Left: <span id="timer">60:00</span>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar">Question 1 of 60</div>
+        </div>
+
+        <div class="score-board">
+            ⭐ Score: <span id="score">0</span> / <span id="answered">0</span> correct!
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="label">Correct</div>
+                    <div class="value">✓ <span id="correctCount">0</span></div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">Wrong</div>
+                    <div class="value">✗ <span id="wrongCount">0</span></div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">Accuracy</div>
+                    <div class="value"><span id="accuracy">0</span>%</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="questionContainer"></div>
+        <div class="feedback" id="feedback"></div>
+        <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next Question! 🎉</button>
+
+        <div class="completion-screen" id="completionScreen">
+            <div class="celebration">🎊</div>
+            <h2>Amazing Job!</h2>
+            <div class="stars" id="finalStars"></div>
+            <p style="font-size: 1.5em; color: #2d3436; margin: 20px 0;">
+                You got <span id="finalScore"></span> out of <span id="totalQuestions"></span> correct!
+            </p>
+            <div style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); padding: 20px; border-radius: 20px; margin: 20px 0;">
+                <p style="font-size: 1.2em; color: #2d3436; margin: 5px 0;">
+                    ✓ Correct: <strong><span id="finalCorrect"></span></strong>
+                </p>
+                <p style="font-size: 1.2em; color: #2d3436; margin: 5px 0;">
+                    ✗ Wrong: <strong><span id="finalWrong"></span></strong>
+                </p>
+                <p style="font-size: 1.2em; color: #2d3436; margin: 5px 0;">
+                    📊 Accuracy: <strong><span id="finalAccuracy"></span>%</strong>
+                </p>
+                <p style="font-size: 1.2em; color: #2d3436; margin: 5px 0;">
+                    ⏱️ Time Taken: <strong><span id="timeTaken"></span></strong>
+                </p>
+            </div>
+            <p style="font-size: 1.3em; color: #6c5ce7;" id="encouragement"></p>
+            <button class="restart-btn" onclick="restartQuiz()">Play Again! 🔄</button>
+        </div>
+    </div>
+
+    <!-- Load 400-question bank from external file -->
+    <script src="questions.js"></script>
+
+    <script>
+        // Main quiz logic - uses questionBank from questions.js (400+ questions!)
+        // We randomly select 30 questions each time
+
+        // Fisher-Yates shuffle algorithm
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // Select random questions for this quiz session
+        let questions = [];
+        const QUESTIONS_PER_QUIZ = 60;
+        const TOTAL_TIME = 60 * 60; // 60 minutes in seconds
+
+        function selectRandomQuestions() {
+            const shuffled = shuffleArray(questionBank);
+            questions = shuffled.slice(0, QUESTIONS_PER_QUIZ);
+        }
+
+        let currentQuestion = 0;
+        let score = 0;
+        let wrongAnswers = 0;
+        let answered = false;
+        let timeRemaining = TOTAL_TIME;
+        let timerInterval = null;
+        let startTime = null;
+
+        function startTimer() {
+            if (!startTime) {
+                startTime = Date.now();
+            }
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            timeRemaining--;
+            
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            const timerDisplay = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            document.getElementById('timer').textContent = timerDisplay;
+            
+            // Warning when less than 5 minutes
+            if (timeRemaining <= 300) {
+                document.getElementById('timerBox').classList.add('warning');
+            }
+            
+            // Time's up!
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval);
+                showCompletion();
+            }
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+        }
+
+        function loadQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const container = document.getElementById('questionContainer');
+            
+            // Start timer on first question
+            if (currentQuestion === 0 && !timerInterval) {
+                startTimer();
+            }
+            
+            container.innerHTML = `
+                <div class="question-card">
+                    <div class="question-text">${q.question}</div>
+                    <div class="animal-picture">${q.picture}</div>
+                    <div class="options">
+                        ${q.options.map(opt => 
+                            `<button class="option-btn" onclick="checkAnswer(${opt})">${opt}</button>`
+                        ).join('')}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'none';
+            updateProgress();
+        }
+
+        function checkAnswer(selected) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const feedback = document.getElementById('feedback');
+            const isCorrect = selected === q.correct;
+
+            if (isCorrect) {
+                score++;
+                feedback.className = 'feedback correct';
+                feedback.innerHTML = '🎉 Awesome! You\'re a math star! ⭐';
+            } else {
+                wrongAnswers++;
+                feedback.className = 'feedback incorrect';
+                feedback.innerHTML = `💪 Good try! The answer is ${q.correct}. You'll get the next one! 🌟`;
+            }
+
+            // Update all statistics
+            const totalAnswered = score + wrongAnswers;
+            const accuracy = totalAnswered > 0 ? Math.round((score / totalAnswered) * 100) : 0;
+            
+            document.getElementById('score').textContent = score;
+            document.getElementById('answered').textContent = totalAnswered;
+            document.getElementById('correctCount').textContent = score;
+            document.getElementById('wrongCount').textContent = wrongAnswers;
+            document.getElementById('accuracy').textContent = accuracy;
+
+            feedback.style.display = 'block';
+            
+            // Disable all buttons
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                btn.style.opacity = '0.6';
+                btn.style.cursor = 'not-allowed';
+            });
+
+            if (currentQuestion < questions.length - 1) {
+                document.getElementById('nextBtn').style.display = 'block';
+            } else {
+                setTimeout(showCompletion, 1500);
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            }
+        }
+
+        function updateProgress() {
+            const progressBar = document.getElementById('progressBar');
+            const percentage = ((currentQuestion + 1) / questions.length) * 100;
+            progressBar.style.width = percentage + '%';
+            progressBar.textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
+        }
+
+        function showCompletion() {
+            stopTimer();
+            document.getElementById('questionContainer').style.display = 'none';
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('timerBox').style.display = 'none';
+            document.getElementById('completionScreen').style.display = 'block';
+            
+            const percentage = (score / questions.length) * 100;
+            let stars = '';
+            let message = '';
+
+            if (percentage === 100) {
+                stars = '⭐⭐⭐⭐⭐';
+                message = 'PERFECT SCORE! You\'re a Math Genius! 🎓';
+            } else if (percentage >= 90) {
+                stars = '⭐⭐⭐⭐⭐';
+                message = 'Outstanding! Almost perfect! 🌟';
+            } else if (percentage >= 80) {
+                stars = '⭐⭐⭐⭐';
+                message = 'Fantastic work! You\'re amazing! 🌟';
+            } else if (percentage >= 70) {
+                stars = '⭐⭐⭐⭐';
+                message = 'Great job! You\'re doing really well! 💪';
+            } else if (percentage >= 60) {
+                stars = '⭐⭐⭐';
+                message = 'Good work! Keep practicing! 💪';
+            } else {
+                stars = '⭐⭐';
+                message = 'Nice try! Practice makes perfect! 🌈';
+            }
+
+            // Calculate time taken
+            const timeTaken = TOTAL_TIME - timeRemaining;
+            const minutesTaken = Math.floor(timeTaken / 60);
+            const secondsTaken = timeTaken % 60;
+            const timeDisplay = `${minutesTaken}:${secondsTaken.toString().padStart(2, '0')}`;
+
+            document.getElementById('finalStars').textContent = stars;
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('totalQuestions').textContent = questions.length;
+            document.getElementById('finalCorrect').textContent = score;
+            document.getElementById('finalWrong').textContent = wrongAnswers;
+            document.getElementById('finalAccuracy').textContent = Math.round(percentage);
+            document.getElementById('timeTaken').textContent = timeDisplay;
+            document.getElementById('encouragement').textContent = message;
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            wrongAnswers = 0;
+            answered = false;
+            timeRemaining = TOTAL_TIME;
+            timerInterval = null;
+            startTime = null;
+            
+            document.getElementById('score').textContent = '0';
+            document.getElementById('answered').textContent = '0';
+            document.getElementById('correctCount').textContent = '0';
+            document.getElementById('wrongCount').textContent = '0';
+            document.getElementById('accuracy').textContent = '0';
+            document.getElementById('timer').textContent = '60:00';
+            document.getElementById('timerBox').classList.remove('warning');
+            document.getElementById('timerBox').style.display = 'block';
+            document.getElementById('questionContainer').style.display = 'block';
+            document.getElementById('completionScreen').style.display = 'none';
+            
+            // Get a fresh set of random questions!
+            selectRandomQuestions();
+            loadQuestion();
+        }
+
+        // Start the quiz with random questions
+        selectRandomQuestions();
+        loadQuestion();
+    </script>
+</body>
+</html>
+
