@@ -58,8 +58,31 @@
             text-align: center;
             margin-bottom: 30px;
             color: white;
-            font-size: 1.5em;
+            font-size: 1.3em;
             font-weight: bold;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .stat-box .label {
+            font-size: 0.8em;
+            opacity: 0.9;
+        }
+
+        .stat-box .value {
+            font-size: 1.3em;
+            margin-top: 5px;
         }
 
         .question-card {
@@ -241,7 +264,21 @@
         </div>
 
         <div class="score-board">
-            ⭐ Score: <span id="score">0</span> points!
+            ⭐ Score: <span id="score">0</span> / <span id="answered">0</span> correct!
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="label">Correct</div>
+                    <div class="value">✓ <span id="correctCount">0</span></div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">Wrong</div>
+                    <div class="value">✗ <span id="wrongCount">0</span></div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">Accuracy</div>
+                    <div class="value"><span id="accuracy">0</span>%</div>
+                </div>
+            </div>
         </div>
 
         <div id="questionContainer"></div>
@@ -253,8 +290,19 @@
             <h2>Amazing Job!</h2>
             <div class="stars" id="finalStars"></div>
             <p style="font-size: 1.5em; color: #2d3436; margin: 20px 0;">
-                You scored <span id="finalScore"></span> out of <span id="totalQuestions"></span> points!
+                You got <span id="finalScore"></span> out of <span id="totalQuestions"></span> correct!
             </p>
+            <div style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); padding: 20px; border-radius: 20px; margin: 20px 0;">
+                <p style="font-size: 1.2em; color: #2d3436; margin: 5px 0;">
+                    ✓ Correct: <strong><span id="finalCorrect"></span></strong>
+                </p>
+                <p style="font-size: 1.2em; color: #2d3436; margin: 5px 0;">
+                    ✗ Wrong: <strong><span id="finalWrong"></span></strong>
+                </p>
+                <p style="font-size: 1.2em; color: #2d3436; margin: 5px 0;">
+                    📊 Accuracy: <strong><span id="finalAccuracy"></span>%</strong>
+                </p>
+            </div>
             <p style="font-size: 1.3em; color: #6c5ce7;" id="encouragement"></p>
             <button class="restart-btn" onclick="restartQuiz()">Play Again! 🔄</button>
         </div>
@@ -351,11 +399,102 @@
                 picture: "🎯",
                 options: [52, 53, 54, 55],
                 correct: 54
+            },
+            {
+                question: "What is 48 + 37?",
+                picture: "🚀",
+                options: [83, 84, 85, 86],
+                correct: 85
+            },
+            {
+                question: "If you have 20 cookies and eat 1/4 of them, how many did you eat?",
+                picture: "🍪",
+                options: [4, 5, 6, 7],
+                correct: 5
+            },
+            {
+                question: "What is 8 × 7? (8 groups of 7)",
+                picture: "🎪",
+                options: [54, 55, 56, 57],
+                correct: 56
+            },
+            {
+                question: "What is 72 - 38?",
+                picture: "🌸",
+                options: [32, 33, 34, 35],
+                correct: 34
+            },
+            {
+                question: "If 5 × 9 = 45, what is 6 × 9?",
+                picture: "🎲",
+                options: [52, 53, 54, 55],
+                correct: 54
+            },
+            {
+                question: "What comes next? 3, 6, 9, 12, __",
+                picture: "🔢",
+                options: [13, 14, 15, 16],
+                correct: 15
+            },
+            {
+                question: "Emma has 25 stickers. She buys 18 more, then gives 13 to her sister. How many left?",
+                picture: "⭐",
+                options: [28, 29, 30, 31],
+                correct: 30
+            },
+            {
+                question: "What is 11 × 4? (11 groups of 4)",
+                picture: "🦄",
+                options: [42, 43, 44, 45],
+                correct: 44
+            },
+            {
+                question: "If 24 candies are shared equally among 4 children, how many does each get?",
+                picture: "🍬",
+                options: [5, 6, 7, 8],
+                correct: 6
+            },
+            {
+                question: "What is 63 + 29?",
+                picture: "🎨",
+                options: [90, 91, 92, 93],
+                correct: 92
+            },
+            {
+                question: "What is half of 36?",
+                picture: "🍰",
+                options: [16, 17, 18, 19],
+                correct: 18
+            },
+            {
+                question: "What is 12 × 3? (12 groups of 3)",
+                picture: "🌻",
+                options: [34, 35, 36, 37],
+                correct: 36
+            },
+            {
+                question: "What is 85 - 47?",
+                picture: "🎈",
+                options: [36, 37, 38, 39],
+                correct: 38
+            },
+            {
+                question: "If you have 7 bags with 8 marbles in each, how many marbles total?",
+                picture: "⚪",
+                options: [54, 55, 56, 57],
+                correct: 56
+            },
+            {
+                question: "What is 10 × 10?",
+                picture: "💯",
+                options: [90, 95, 100, 105],
+                correct: 100
             }
         ];
 
         let currentQuestion = 0;
         let score = 0;
+        let wrongAnswers = 0;
         let answered = false;
 
         function loadQuestion() {
@@ -392,11 +531,21 @@
                 score++;
                 feedback.className = 'feedback correct';
                 feedback.innerHTML = '🎉 Awesome! You\'re a math star! ⭐';
-                document.getElementById('score').textContent = score;
             } else {
+                wrongAnswers++;
                 feedback.className = 'feedback incorrect';
                 feedback.innerHTML = `💪 Good try! The answer is ${q.correct}. You'll get the next one! 🌟`;
             }
+
+            // Update all statistics
+            const totalAnswered = score + wrongAnswers;
+            const accuracy = totalAnswered > 0 ? Math.round((score / totalAnswered) * 100) : 0;
+            
+            document.getElementById('score').textContent = score;
+            document.getElementById('answered').textContent = totalAnswered;
+            document.getElementById('correctCount').textContent = score;
+            document.getElementById('wrongCount').textContent = wrongAnswers;
+            document.getElementById('accuracy').textContent = accuracy;
 
             feedback.style.display = 'block';
             
@@ -441,29 +590,43 @@
 
             if (percentage === 100) {
                 stars = '⭐⭐⭐⭐⭐';
-                message = 'PERFECT! You\'re a Math Genius! 🎓';
+                message = 'PERFECT SCORE! You\'re a Math Genius! 🎓';
+            } else if (percentage >= 90) {
+                stars = '⭐⭐⭐⭐⭐';
+                message = 'Outstanding! Almost perfect! 🌟';
             } else if (percentage >= 80) {
                 stars = '⭐⭐⭐⭐';
                 message = 'Fantastic work! You\'re amazing! 🌟';
+            } else if (percentage >= 70) {
+                stars = '⭐⭐⭐⭐';
+                message = 'Great job! You\'re doing really well! 💪';
             } else if (percentage >= 60) {
                 stars = '⭐⭐⭐';
-                message = 'Great job! Keep practicing! 💪';
+                message = 'Good work! Keep practicing! 💪';
             } else {
                 stars = '⭐⭐';
-                message = 'Good effort! Practice makes perfect! 🌈';
+                message = 'Nice try! Practice makes perfect! 🌈';
             }
 
             document.getElementById('finalStars').textContent = stars;
             document.getElementById('finalScore').textContent = score;
             document.getElementById('totalQuestions').textContent = questions.length;
+            document.getElementById('finalCorrect').textContent = score;
+            document.getElementById('finalWrong').textContent = wrongAnswers;
+            document.getElementById('finalAccuracy').textContent = Math.round(percentage);
             document.getElementById('encouragement').textContent = message;
         }
 
         function restartQuiz() {
             currentQuestion = 0;
             score = 0;
+            wrongAnswers = 0;
             answered = false;
             document.getElementById('score').textContent = '0';
+            document.getElementById('answered').textContent = '0';
+            document.getElementById('correctCount').textContent = '0';
+            document.getElementById('wrongCount').textContent = '0';
+            document.getElementById('accuracy').textContent = '0';
             document.getElementById('questionContainer').style.display = 'block';
             document.getElementById('completionScreen').style.display = 'none';
             loadQuestion();
