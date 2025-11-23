@@ -85,6 +85,29 @@
             margin-top: 5px;
         }
 
+        .timer-box {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2em;
+            font-weight: bold;
+            color: #2d3436;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .timer-box.warning {
+            background: linear-gradient(135deg, #ff7675 0%, #d63031 100%);
+            color: white;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
         .question-card {
             background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
             padding: 30px;
@@ -259,8 +282,12 @@
         <h1>🌟 Math Adventure! 🌟</h1>
         <p class="subtitle">Let's learn and have fun!</p>
         
+        <div class="timer-box" id="timerBox">
+            ⏰ Time Left: <span id="timer">60:00</span>
+        </div>
+        
         <div class="progress-bar">
-            <div class="progress-fill" id="progressBar">Question 1 of 10</div>
+            <div class="progress-fill" id="progressBar">Question 1 of 60</div>
         </div>
 
         <div class="score-board">
@@ -302,6 +329,9 @@
                 <p style="font-size: 1.2em; color: #2d3436; margin: 5px 0;">
                     📊 Accuracy: <strong><span id="finalAccuracy"></span>%</strong>
                 </p>
+                <p style="font-size: 1.2em; color: #2d3436; margin: 5px 0;">
+                    ⏱️ Time Taken: <strong><span id="timeTaken"></span></strong>
+                </p>
             </div>
             <p style="font-size: 1.3em; color: #6c5ce7;" id="encouragement"></p>
             <button class="restart-btn" onclick="restartQuiz()">Play Again! 🔄</button>
@@ -327,7 +357,8 @@
 
         // Select random questions for this quiz session
         let questions = [];
-        const QUESTIONS_PER_QUIZ = 30;
+        const QUESTIONS_PER_QUIZ = 60;
+        const TOTAL_TIME = 60 * 60; // 60 minutes in seconds
 
         function selectRandomQuestions() {
             const shuffled = shuffleArray(questionBank);
@@ -338,11 +369,53 @@
         let score = 0;
         let wrongAnswers = 0;
         let answered = false;
+        let timeRemaining = TOTAL_TIME;
+        let timerInterval = null;
+        let startTime = null;
+
+        function startTimer() {
+            if (!startTime) {
+                startTime = Date.now();
+            }
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            timeRemaining--;
+            
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            const timerDisplay = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            document.getElementById('timer').textContent = timerDisplay;
+            
+            // Warning when less than 5 minutes
+            if (timeRemaining <= 300) {
+                document.getElementById('timerBox').classList.add('warning');
+            }
+            
+            // Time's up!
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval);
+                showCompletion();
+            }
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+        }
 
         function loadQuestion() {
             answered = false;
             const q = questions[currentQuestion];
             const container = document.getElementById('questionContainer');
+            
+            // Start timer on first question
+            if (currentQuestion === 0 && !timerInterval) {
+                startTimer();
+            }
             
             container.innerHTML = `
                 <div class="question-card">
@@ -421,9 +494,11 @@
         }
 
         function showCompletion() {
+            stopTimer();
             document.getElementById('questionContainer').style.display = 'none';
             document.getElementById('feedback').style.display = 'none';
             document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('timerBox').style.display = 'none';
             document.getElementById('completionScreen').style.display = 'block';
             
             const percentage = (score / questions.length) * 100;
@@ -450,12 +525,19 @@
                 message = 'Nice try! Practice makes perfect! 🌈';
             }
 
+            // Calculate time taken
+            const timeTaken = TOTAL_TIME - timeRemaining;
+            const minutesTaken = Math.floor(timeTaken / 60);
+            const secondsTaken = timeTaken % 60;
+            const timeDisplay = `${minutesTaken}:${secondsTaken.toString().padStart(2, '0')}`;
+
             document.getElementById('finalStars').textContent = stars;
             document.getElementById('finalScore').textContent = score;
             document.getElementById('totalQuestions').textContent = questions.length;
             document.getElementById('finalCorrect').textContent = score;
             document.getElementById('finalWrong').textContent = wrongAnswers;
             document.getElementById('finalAccuracy').textContent = Math.round(percentage);
+            document.getElementById('timeTaken').textContent = timeDisplay;
             document.getElementById('encouragement').textContent = message;
         }
 
@@ -464,11 +546,18 @@
             score = 0;
             wrongAnswers = 0;
             answered = false;
+            timeRemaining = TOTAL_TIME;
+            timerInterval = null;
+            startTime = null;
+            
             document.getElementById('score').textContent = '0';
             document.getElementById('answered').textContent = '0';
             document.getElementById('correctCount').textContent = '0';
             document.getElementById('wrongCount').textContent = '0';
             document.getElementById('accuracy').textContent = '0';
+            document.getElementById('timer').textContent = '60:00';
+            document.getElementById('timerBox').classList.remove('warning');
+            document.getElementById('timerBox').style.display = 'block';
             document.getElementById('questionContainer').style.display = 'block';
             document.getElementById('completionScreen').style.display = 'none';
             
