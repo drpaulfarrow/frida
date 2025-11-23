@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌟 Fun Math Adventure! 🌟</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Arial Rounded MT Bold', cursive;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #ff6b6b;
+            text-align: center;
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 3px 3px 0px #feca57;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #5f27cd;
+            font-size: 1.5em;
+            margin-bottom: 30px;
+        }
+
+        .score-board {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .question-card {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            border: 5px solid #ff6b6b;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .question-text {
+            font-size: 1.8em;
+            color: #2d3436;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .animal-picture {
+            font-size: 4em;
+            text-align: center;
+            margin: 20px 0;
+            user-select: none;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .option-btn {
+            padding: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #ffd93d 0%, #ff6b6b 100%);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            font-family: 'Comic Sans MS', cursive;
+        }
+
+        .option-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .option-btn:active {
+            transform: scale(0.95);
+        }
+
+        .feedback {
+            text-align: center;
+            font-size: 2em;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 15px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .feedback.correct {
+            background: #00d2ff;
+            color: white;
+            animation: celebrate 0.5s;
+            display: block;
+        }
+
+        .feedback.incorrect {
+            background: #ffbe76;
+            color: #2d3436;
+            display: block;
+        }
+
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.1) rotate(-5deg); }
+            75% { transform: scale(1.1) rotate(5deg); }
+        }
+
+        .next-btn {
+            width: 100%;
+            padding: 20px;
+            font-size: 1.8em;
+            font-weight: bold;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #48c6ef 0%, #6f86d6 100%);
+            color: white;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            font-family: 'Comic Sans MS', cursive;
+            display: none;
+        }
+
+        .next-btn:hover {
+            transform: scale(1.02);
+        }
+
+        .celebration {
+            font-size: 5em;
+            text-align: center;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .stars {
+            text-align: center;
+            font-size: 3em;
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            background: #dfe6e9;
+            height: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #00b894, #00cec9);
+            height: 100%;
+            transition: width 0.5s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .completion-screen {
+            text-align: center;
+            display: none;
+        }
+
+        .completion-screen h2 {
+            font-size: 3em;
+            color: #6c5ce7;
+            margin: 20px 0;
+        }
+
+        .restart-btn {
+            padding: 20px 40px;
+            font-size: 1.5em;
+            font-weight: bold;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            font-family: 'Comic Sans MS', cursive;
+        }
+
+        .restart-btn:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌟 Math Adventure! 🌟</h1>
+        <p class="subtitle">Let's learn and have fun!</p>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar">Question 1 of 10</div>
+        </div>
+
+        <div class="score-board">
+            ⭐ Score: <span id="score">0</span> points!
+        </div>
+
+        <div id="questionContainer"></div>
+        <div class="feedback" id="feedback"></div>
+        <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next Question! 🎉</button>
+
+        <div class="completion-screen" id="completionScreen">
+            <div class="celebration">🎊</div>
+            <h2>Amazing Job!</h2>
+            <div class="stars" id="finalStars"></div>
+            <p style="font-size: 1.5em; color: #2d3436; margin: 20px 0;">
+                You scored <span id="finalScore"></span> out of <span id="totalQuestions"></span> points!
+            </p>
+            <p style="font-size: 1.3em; color: #6c5ce7;" id="encouragement"></p>
+            <button class="restart-btn" onclick="restartQuiz()">Play Again! 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "What is 27 + 15?",
+                picture: "🎨",
+                options: [40, 41, 42, 43],
+                correct: 42
+            },
+            {
+                question: "If you have 3 groups of 4 apples 🍎, how many apples in total?",
+                picture: "🍎🍎🍎🍎  🍎🍎🍎🍎  🍎🍎🍎🍎",
+                options: [10, 11, 12, 13],
+                correct: 12
+            },
+            {
+                question: "What is 50 - 23?",
+                picture: "🎈",
+                options: [25, 26, 27, 28],
+                correct: 27
+            },
+            {
+                question: "Sarah has 18 stickers. She gives 9 to her friend. Then she gets 7 more. How many now?",
+                picture: "✨",
+                options: [14, 15, 16, 17],
+                correct: 16
+            },
+            {
+                question: "What is 6 × 5? (6 groups of 5)",
+                picture: "🌟",
+                options: [28, 29, 30, 31],
+                correct: 30
+            },
+            {
+                question: "If 12 cookies 🍪 are shared equally between 3 friends, how many does each get?",
+                picture: "👧👦👧",
+                options: [3, 4, 5, 6],
+                correct: 4
+            },
+            {
+                question: "What is 34 + 28?",
+                picture: "🦋",
+                options: [60, 61, 62, 63],
+                correct: 62
+            },
+            {
+                question: "What comes next in the pattern? 5, 10, 15, 20, __",
+                picture: "🔢",
+                options: [23, 24, 25, 26],
+                correct: 25
+            },
+            {
+                question: "What is 7 × 4? (7 groups of 4)",
+                picture: "🌈",
+                options: [26, 27, 28, 29],
+                correct: 28
+            },
+            {
+                question: "A box has 45 crayons. You use 17. How many are left?",
+                picture: "🖍️",
+                options: [26, 27, 28, 29],
+                correct: 28
+            },
+            {
+                question: "What is half of 24?",
+                picture: "🍕",
+                options: [10, 11, 12, 13],
+                correct: 12
+            },
+            {
+                question: "If 8 × 3 = 24, what is 8 × 4?",
+                picture: "🧮",
+                options: [30, 31, 32, 33],
+                correct: 32
+            },
+            {
+                question: "What is 100 - 47?",
+                picture: "💯",
+                options: [51, 52, 53, 54],
+                correct: 53
+            },
+            {
+                question: "You have 15 marbles. Your friend gives you 15 more. Then you give away 10. How many left?",
+                picture: "⚪",
+                options: [18, 19, 20, 21],
+                correct: 20
+            },
+            {
+                question: "What is 9 × 6? (9 groups of 6)",
+                picture: "🎯",
+                options: [52, 53, 54, 55],
+                correct: 54
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+
+        function loadQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const container = document.getElementById('questionContainer');
+            
+            container.innerHTML = `
+                <div class="question-card">
+                    <div class="question-text">${q.question}</div>
+                    <div class="animal-picture">${q.picture}</div>
+                    <div class="options">
+                        ${q.options.map(opt => 
+                            `<button class="option-btn" onclick="checkAnswer(${opt})">${opt}</button>`
+                        ).join('')}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'none';
+            updateProgress();
+        }
+
+        function checkAnswer(selected) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const feedback = document.getElementById('feedback');
+            const isCorrect = selected === q.correct;
+
+            if (isCorrect) {
+                score++;
+                feedback.className = 'feedback correct';
+                feedback.innerHTML = '🎉 Awesome! You\'re a math star! ⭐';
+                document.getElementById('score').textContent = score;
+            } else {
+                feedback.className = 'feedback incorrect';
+                feedback.innerHTML = `💪 Good try! The answer is ${q.correct}. You'll get the next one! 🌟`;
+            }
+
+            feedback.style.display = 'block';
+            
+            // Disable all buttons
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                btn.style.opacity = '0.6';
+                btn.style.cursor = 'not-allowed';
+            });
+
+            if (currentQuestion < questions.length - 1) {
+                document.getElementById('nextBtn').style.display = 'block';
+            } else {
+                setTimeout(showCompletion, 1500);
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            }
+        }
+
+        function updateProgress() {
+            const progressBar = document.getElementById('progressBar');
+            const percentage = ((currentQuestion + 1) / questions.length) * 100;
+            progressBar.style.width = percentage + '%';
+            progressBar.textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
+        }
+
+        function showCompletion() {
+            document.getElementById('questionContainer').style.display = 'none';
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('completionScreen').style.display = 'block';
+            
+            const percentage = (score / questions.length) * 100;
+            let stars = '';
+            let message = '';
+
+            if (percentage === 100) {
+                stars = '⭐⭐⭐⭐⭐';
+                message = 'PERFECT! You\'re a Math Genius! 🎓';
+            } else if (percentage >= 80) {
+                stars = '⭐⭐⭐⭐';
+                message = 'Fantastic work! You\'re amazing! 🌟';
+            } else if (percentage >= 60) {
+                stars = '⭐⭐⭐';
+                message = 'Great job! Keep practicing! 💪';
+            } else {
+                stars = '⭐⭐';
+                message = 'Good effort! Practice makes perfect! 🌈';
+            }
+
+            document.getElementById('finalStars').textContent = stars;
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('totalQuestions').textContent = questions.length;
+            document.getElementById('encouragement').textContent = message;
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            answered = false;
+            document.getElementById('score').textContent = '0';
+            document.getElementById('questionContainer').style.display = 'block';
+            document.getElementById('completionScreen').style.display = 'none';
+            loadQuestion();
+        }
+
+        // Start the quiz
+        loadQuestion();
+    </script>
+</body>
+</html>
+
