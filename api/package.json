@@ -1,0 +1,10 @@
+{
+  "name": "frida-api",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/functions/*.js",
+  "dependencies": {
+    "@azure/functions": "^4.6.0",
+    "@azure/storage-blob": "^12.26.0"
+  }
+}
