@@ -1,0 +1,18 @@
+{
+  "platform": {
+    "apiRuntime": "node:20"
+  },
+  "routes": [
+    {
+      "route": "/admin/*",
+      "headers": {
+        "X-Robots-Tag": "noindex, nofollow",
+        "Cache-Control": "no-store"
+      }
+    }
+  ],
+  "globalHeaders": {
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "same-origin"
+  }
+}

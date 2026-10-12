@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frida</title>
+    <meta name="description" content="Recipes and wardrobe, recorded by Frida.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=Inter:wght@500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;1,8..60,400&display=swap" rel="stylesheet">
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+    <header class="masthead wrap">
+        <div class="topline label">
+            <span id="today"></span>
+            <span>Recipes &amp; Wardrobe</span>
+        </div>
+        <a class="logo" href="#/">FRIDA</a>
+        <nav class="nav label">
+            <a href="#/" data-nav="all">The Latest</a>
+            <a href="#/recipes" data-nav="recipes">Recipes</a>
+            <a href="#/wardrobe" data-nav="wardrobe">Wardrobe</a>
+        </nav>
+    </header>
+
+    <main class="wrap" id="view"></main>
+
+    <footer class="site">
+        <div class="wrap">
+            <div class="mark">FRIDA</div>
+            <div class="label">Recipes and wardrobe, recorded by Frida</div>
+        </div>
+    </footer>
+
+    <script src="/assets/common.js"></script>
+    <script>
+        let entries = null;
+        let loadError = null;
+        const view = document.getElementById('view');
+
+        document.getElementById('today').textContent =
+            new Date().toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+
+        function storyLink(e) {
+            return `#/story/${encodeURIComponent(e.id)}`;
+        }
+
+        function byline(e) {
+            const date = formatDate(e.date || e.createdAt);
+            return `<div class="label muted">By Frida${date ? ` &middot; ${escapeHtml(date)}` : ''}</div>`;
+        }
+
+        function message(kicker, text) {
+            return `<div class="message"><div class="label muted">${kicker}</div><p>${text}</p></div>`;
+        }
+
+        function renderIndex(filter) {
+            const list = filter ? entries.filter(e => KINDS[e.type].path === filter) : entries;
+            const title = filter ? Object.values(KINDS).find(k => k.path === filter).section : 'The Latest';
+            document.title = filter ? `${title} | Frida` : 'Frida';
+
+            if (!list.length) {
+                view.innerHTML = message(title, 'The first stories are in preparation.');
+                return;
+            }
+
+            const [lead, ...rest] = list;
+            let html = `
+                <a class="lead" href="${storyLink(lead)}">
+                    ${photoHtml(lead)}
+                    <div class="text">
+                        <div class="label">${KINDS[lead.type].label}</div>
+                        <h2>${escapeHtml(lead.title)}</h2>
+                        ${lead.standfirst ? `<p class="standfirst">${escapeHtml(lead.standfirst)}</p>` : ''}
+                        <div style="margin-top:22px">${byline(lead)}</div>
+                    </div>
+                </a>`;
+
+            if (rest.length) {
+                html += `<div class="section-head label">More ${filter ? title : 'Stories'}</div><div class="grid">`;
+                html += rest.map(e => `
+                    <a class="card" href="${storyLink(e)}">
+                        ${photoHtml(e)}
+                        <div class="label">${KINDS[e.type].label}</div>
+                        <h3>${escapeHtml(e.title)}</h3>
+                        ${e.standfirst ? `<p class="standfirst">${escapeHtml(e.standfirst)}</p>` : ''}
+                    </a>`).join('');
+                html += '</div>';
+            }
+            view.innerHTML = html;
+        }
+
+        function renderStory(id) {
+            const e = entries.find(x => x.id === id);
+            if (!e) {
+                view.innerHTML = message('Not found', 'This story has moved or no longer exists.');
+                return;
+            }
+            const kind = KINDS[e.type];
+            document.title = `${e.title} | Frida`;
+
+            let facts = [];
+            if (e.type === 'recipe') {
+                if (e.serves) facts.push(['Serves', e.serves]);
+                if (e.time) facts.push(['Time', e.time]);
+            } else if (e.occasion) {
+                facts.push(['Occasion', e.occasion]);
+            }
+
+            let body = '';
+            if (e.type === 'recipe') {
+                const ingredients = splitLines(e.ingredients);
+                const method = splitLines(e.method);
+                if (ingredients.length || method.length) {
+                    body = `<div class="body ${ingredients.length && method.length ? 'split' : ''}">
+                        ${ingredients.length ? `<section><h2 class="label">Ingredients</h2><ul class="list">${ingredients.map(i => `<li>${escapeHtml(i)}</li>`).join('')}</ul></section>` : ''}
+                        ${method.length ? `<section><h2 class="label">Method</h2><ol class="steps">${method.map(s => `<li><span>${escapeHtml(s)}</span></li>`).join('')}</ol></section>` : ''}
+                    </div>`;
+                }
+            } else {
+                const pieces = splitLines(e.pieces);
+                if (pieces.length) {
+                    body = `<div class="body"><section><h2 class="label">The Pieces</h2><ul class="list">${pieces.map(p => `<li>${escapeHtml(p)}</li>`).join('')}</ul></section></div>`;
+                }
+            }
+
+            const extra = (e.photos || []).slice(1);
+
+            view.innerHTML = `
+                <article class="story">
+                    <a class="back label" href="#/${kind.path}">&larr; ${kind.section}</a>
+                    <header>
+                        <div class="label">${kind.label}</div>
+                        <h1>${escapeHtml(e.title)}</h1>
+                        ${e.standfirst ? `<p class="standfirst">${escapeHtml(e.standfirst)}</p>` : ''}
+                        ${byline(e)}
+                    </header>
+                    ${(e.photos || []).length ? photoHtml(e, 0, 'hero') : ''}
+                    ${facts.length ? `<dl class="facts">${facts.map(([k, v]) => `<div><dt class="label muted">${k}</dt><dd>${escapeHtml(v)}</dd></div>`).join('')}</dl>` : ''}
+                    ${body}
+                    ${e.notes ? `<section class="notes"><div class="label muted">From Frida's notes</div><p>${escapeHtml(e.notes)}</p></section>` : ''}
+                    ${extra.length ? `<div class="gallery">${extra.map((_, i) => photoHtml(e, i + 1)).join('')}</div>` : ''}
+                </article>`;
+            window.scrollTo(0, 0);
+        }
+
+        function route() {
+            const hash = location.hash.replace(/^#\/?/, '');
+            const [section, id] = hash.split('/');
+
+            document.querySelectorAll('[data-nav]').forEach(a => {
+                const current = (a.dataset.nav === 'all' && !section) || a.dataset.nav === section;
+                if (current) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+            });
+
+            if (loadError) {
+                view.innerHTML = message('Frida', loadError);
+                return;
+            }
+            if (!entries) {
+                view.innerHTML = message('Frida', 'Loading&hellip;');
+                return;
+            }
+            if (section === 'story' && id) renderStory(decodeURIComponent(id));
+            else if (section === 'recipes' || section === 'wardrobe') renderIndex(section);
+            else renderIndex(null);
+        }
+
+        window.addEventListener('hashchange', route);
+        route();
+
+        api('entries')
+            .then(data => { entries = data; })
+            .catch(err => {
+                if (err.status === 503) entries = [];
+                else loadError = 'The stories could not be loaded. Please try again shortly.';
+            })
+            .then(route);
+    </script>
+</body>
+</html>

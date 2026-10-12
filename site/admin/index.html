@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Frida Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=Inter:wght@500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;1,8..60,400&display=swap" rel="stylesheet">
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/assets/site.css">
+    <style>
+        .admin-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--ink);
+            padding: 20px 0 14px;
+        }
+
+        .admin-head .logo {
+            font-family: var(--display);
+            font-size: 2rem;
+            letter-spacing: 0.06em;
+            text-decoration: none;
+        }
+
+        .panel {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 48px 0 96px;
+        }
+
+        .panel h1 {
+            font-family: var(--display);
+            font-weight: 400;
+            font-size: clamp(2.2rem, 6vw, 3.4rem);
+            line-height: 1.05;
+            margin: 10px 0 28px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 32px;
+        }
+
+        .rows {
+            list-style: none;
+            border-top: 1px solid var(--rule);
+        }
+
+        .rows li {
+            display: grid;
+            grid-template-columns: 64px 1fr auto;
+            gap: 16px;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--rule);
+        }
+
+        .rows .photo {
+            aspect-ratio: 3 / 4;
+        }
+
+        .rows .photo .placeholder {
+            font-size: 1.6rem;
+        }
+
+        .rows h3 {
+            font-family: var(--display);
+            font-weight: 400;
+            font-size: 1.3rem;
+            line-height: 1.2;
+        }
+
+        .type-switch {
+            display: flex;
+            gap: 0;
+            margin-bottom: 28px;
+        }
+
+        .type-switch .btn + .btn {
+            border-left: none;
+        }
+
+        .type-switch .btn[aria-pressed="true"] {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .two {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 560px) {
+            .two {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+        }
+
+        .photos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 14px;
+            margin: 8px 0 10px;
+        }
+
+        .photos .item .photo {
+            aspect-ratio: 3 / 4;
+        }
+
+        .photos .item .tools {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 6px;
+        }
+
+        .photos .item button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px 6px;
+            color: var(--muted);
+        }
+
+        .photos .item button:hover {
+            color: var(--ink);
+        }
+
+        .add-photo {
+            aspect-ratio: 3 / 4;
+            border: 1px dashed var(--muted);
+            background: transparent;
+            cursor: pointer;
+            display: grid;
+            place-items: center;
+            color: var(--muted);
+        }
+
+        .save-bar {
+            position: sticky;
+            bottom: 0;
+            background: var(--paper);
+            border-top: 1px solid var(--rule);
+            padding: 14px 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .save-bar .spacer {
+            flex: 1;
+        }
+
+        .notice {
+            border: 1px solid var(--rule);
+            padding: 14px 16px;
+            margin-bottom: 24px;
+            font-style: italic;
+        }
+
+        .notice.error {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="admin-head">
+            <a class="logo" href="/">FRIDA</a>
+            <div style="display:flex;gap:10px;align-items:center">
+                <span class="label muted">Admin</span>
+                <button class="btn quiet" id="logout" hidden>Sign out</button>
+            </div>
+        </div>
+        <main id="view"></main>
+    </div>
+
+    <script src="/assets/common.js"></script>
+    <script>
+        const view = document.getElementById('view');
+        const KEY = 'frida-admin-passphrase';
+        let passphrase = null;
+        let entries = [];
+
+        try { passphrase = sessionStorage.getItem(KEY); } catch (e) {}
+
+        function authed(path, options = {}) {
+            return api(path, { ...options, headers: { ...(options.headers || {}), 'X-Admin-Passphrase': passphrase } });
+        }
+
+        function setPassphrase(value) {
+            passphrase = value;
+            try {
+                if (value) sessionStorage.setItem(KEY, value); else sessionStorage.removeItem(KEY);
+            } catch (e) {}
+            document.getElementById('logout').hidden = !value;
+        }
+
+        function notice(text, isError) {
+            return `<div class="notice${isError ? ' error' : ''}">${escapeHtml(text)}</div>`;
+        }
+
+        // Signed-out callers go back to the login screen
+        function handleAuthError(err) {
+            if (err.status === 401) {
+                setPassphrase(null);
+                showLogin('Please sign in again.');
+                return true;
+            }
+            return false;
+        }
+
+        // ---------- Login ----------
+        function showLogin(msg) {
+            view.innerHTML = `
+                <form class="panel" id="login" style="max-width:440px">
+                    <div class="label muted">Admin</div>
+                    <h1>Sign in</h1>
+                    <div id="login-msg">${msg ? notice(msg, true) : ''}</div>
+                    <div class="field">
+                        <label class="label" for="pass">Passphrase</label>
+                        <input id="pass" type="password" autocomplete="current-password" required>
+                    </div>
+                    <button class="btn solid" type="submit">Enter</button>
+                </form>`;
+            const form = document.getElementById('login');
+            document.getElementById('pass').focus();
+            form.addEventListener('submit', async e => {
+                e.preventDefault();
+                const btn = form.querySelector('button');
+                btn.disabled = true;
+                setPassphrase(document.getElementById('pass').value);
+                try {
+                    await authed('login', { method: 'POST' });
+                    showList();
+                } catch (err) {
+                    setPassphrase(null);
+                    document.getElementById('login-msg').innerHTML = notice(err.message, true);
+                    btn.disabled = false;
+                }
+            });
+        }
+
+        // ---------- List ----------
+        async function showList(msg) {
+            view.innerHTML = `<div class="panel"><div class="label muted">Loading&hellip;</div></div>`;
+            let problem = '';
+            try {
+                entries = await api('entries');
+            } catch (err) {
+                entries = [];
+                problem = err.message;
+            }
+            view.innerHTML = `
+                <div class="panel">
+                    <div class="label muted">Admin</div>
+                    <h1>Your stories</h1>
+                    ${msg ? notice(msg) : ''}
+                    ${problem ? notice(problem, true) : ''}
+                    <div class="actions">
+                        <button class="btn solid" data-new="recipe">New recipe</button>
+                        <button class="btn solid" data-new="outfit">New outfit</button>
+                    </div>
+                    ${entries.length ? `<ul class="rows">${entries.map(e => `
+                        <li>
+                            ${photoHtml(e)}
+                            <div>
+                                <div class="label muted">${KINDS[e.type].label}${e.date ? ` &middot; ${escapeHtml(formatDate(e.date))}` : ''}</div>
+                                <h3>${escapeHtml(e.title)}</h3>
+                            </div>
+                            <button class="btn quiet" data-edit="${escapeHtml(e.id)}">Edit</button>
+                        </li>`).join('')}</ul>`
+                        : `<p class="muted" style="font-style:italic">Nothing here yet. Start with a recipe or an outfit.</p>`}
+                </div>`;
+            view.querySelectorAll('[data-new]').forEach(b => b.addEventListener('click', () => showEditor({ type: b.dataset.new })));
+            view.querySelectorAll('[data-edit]').forEach(b => b.addEventListener('click', () =>
+                showEditor(entries.find(e => e.id === b.dataset.edit))));
+        }
+
+        // ---------- Editor ----------
+        const FORMS = {
+            recipe: [
+                { two: [
+                    { key: 'serves', label: 'Serves', placeholder: '4' },
+                    { key: 'time', label: 'Time', placeholder: '45 minutes' }
+                ] },
+                { key: 'ingredients', label: 'Ingredients', area: true, hint: 'One per line' },
+                { key: 'method', label: 'Method', area: true, hint: 'One step per line' }
+            ],
+            outfit: [
+                { key: 'occasion', label: 'Occasion', placeholder: 'A summer wedding' },
+                { key: 'pieces', label: 'The pieces', area: true, hint: 'One item per line, e.g. Ivory silk blouse' }
+            ]
+        };
+
+        function fieldHtml(f, data) {
+            const val = escapeHtml(data[f.key] || '');
+            const ph = f.placeholder ? ` placeholder="${escapeHtml(f.placeholder)}"` : '';
+            const input = f.area
+                ? `<textarea id="f-${f.key}" name="${f.key}"${ph}>${val}</textarea>`
+                : `<input id="f-${f.key}" name="${f.key}" type="${f.type || 'text'}" value="${val}"${ph}${f.required ? ' required' : ''}${f.big ? ' class="big"' : ''}>`;
+            return `<div class="field"><label class="label" for="f-${f.key}">${f.label}</label>${f.hint ? `<span class="hint">${f.hint}</span>` : ''}${input}</div>`;
+        }
+
+        // Shrink large photos before upload
+        function resizePhoto(file, max = 2000) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                const url = URL.createObjectURL(file);
+                img.onload = () => {
+                    const scale = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+                    const canvas = document.createElement('canvas');
+                    canvas.width = Math.round(img.naturalWidth * scale);
+                    canvas.height = Math.round(img.naturalHeight * scale);
+                    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                    URL.revokeObjectURL(url);
+                    canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Could not read that photo.')), 'image/jpeg', 0.86);
+                };
+                img.onerror = () => {
+                    URL.revokeObjectURL(url);
+                    reject(new Error('Could not read that photo.'));
+                };
+                img.src = url;
+            });
+        }
+
+        function showEditor(entry) {
+            const isNew = !entry.id;
+            let type = entry.type;
+            const data = isNew ? { type, date: new Date().toISOString().slice(0, 10) } : { ...entry };
+            // Each photo is { id } once uploaded, or { blob, url } while pending
+            let photos = (entry.photos || []).map(id => ({ id }));
+            let dirty = false;
+
+            function typeFields() {
+                return FORMS[type].map(f => f.two
+                    ? `<div class="two">${f.two.map(x => fieldHtml(x, data)).join('')}</div>`
+                    : fieldHtml(f, data)).join('');
+            }
+
+            view.innerHTML = `
+                <form class="panel" id="editor">
+                    <a class="label muted" href="#" id="back" style="text-decoration:none">&larr; All stories</a>
+                    <h1>${isNew ? 'New story' : 'Edit story'}</h1>
+                    <div id="msg"></div>
+                    <div class="type-switch" role="group" aria-label="Type">
+                        <button type="button" class="btn" data-type="recipe">Recipe</button>
+                        <button type="button" class="btn" data-type="outfit">Outfit</button>
+                    </div>
+                    ${fieldHtml({ key: 'title', label: 'Title', required: true, big: true, placeholder: 'Untitled' }, data)}
+                    ${fieldHtml({ key: 'standfirst', label: 'Introduction', area: true, hint: 'A sentence or two that appears under the title' }, data)}
+                    ${fieldHtml({ key: 'date', label: 'Date', type: 'date' }, data)}
+                    <div class="field">
+                        <span class="label">Photos</span>
+                        <span class="hint">The first photo is the cover</span>
+                        <div class="photos" id="photos"></div>
+                        <input type="file" id="photo-file" accept="image/*" multiple hidden>
+                    </div>
+                    <div id="type-fields">${typeFields()}</div>
+                    ${fieldHtml({ key: 'notes', label: 'Notes', area: true, hint: 'Shown as a quote at the end of the story' }, data)}
+                    <div class="save-bar">
+                        ${isNew ? '' : '<button type="button" class="btn danger" id="delete">Delete</button>'}
+                        <span class="spacer"></span>
+                        ${isNew ? '' : `<a class="btn quiet" href="/#/story/${encodeURIComponent(entry.id)}" target="_blank" rel="noopener" style="text-decoration:none">View</a>`}
+                        <button type="submit" class="btn solid" id="save">${isNew ? 'Publish' : 'Save changes'}</button>
+                    </div>
+                </form>`;
+
+            const form = document.getElementById('editor');
+            const msg = document.getElementById('msg');
+            const fileInput = document.getElementById('photo-file');
+
+            function readForm() {
+                new FormData(form).forEach((v, k) => { data[k] = v; });
+            }
+
+            function renderType() {
+                form.querySelectorAll('[data-type]').forEach(b => b.setAttribute('aria-pressed', b.dataset.type === type));
+            }
+
+            function renderPhotos() {
+                const box = document.getElementById('photos');
+                box.innerHTML = photos.map((p, i) => `
+                    <div class="item">
+                        <div class="photo"><img src="${p.url || photoUrl(p.id)}" alt=""></div>
+                        <div class="tools label">
+                            <span>${i === 0 ? 'Cover' : ''}</span>
+                            <span>
+                                ${i > 0 ? `<button type="button" data-left="${i}" aria-label="Move earlier">&larr;</button>` : ''}
+                                <button type="button" data-remove="${i}" aria-label="Remove photo">&times;</button>
+                            </span>
+                        </div>
+                    </div>`).join('') + `<button type="button" class="add-photo label" id="add-photo">+ Add photos</button>`;
+            }
+
+            form.addEventListener('input', () => { dirty = true; });
+
+            form.addEventListener('click', e => {
+                const t = e.target.closest('button, a');
+                if (!t) return;
+                if (t.dataset.type && t.dataset.type !== type) {
+                    readForm();
+                    type = t.dataset.type;
+                    document.getElementById('type-fields').innerHTML = typeFields();
+                    renderType();
+                    dirty = true;
+                } else if (t.id === 'add-photo') {
+                    fileInput.click();
+                } else if (t.dataset.left) {
+                    const i = Number(t.dataset.left);
+                    [photos[i - 1], photos[i]] = [photos[i], photos[i - 1]];
+                    renderPhotos();
+                    dirty = true;
+                } else if (t.dataset.remove) {
+                    const [gone] = photos.splice(Number(t.dataset.remove), 1);
+                    if (gone.url) URL.revokeObjectURL(gone.url);
+                    renderPhotos();
+                    dirty = true;
+                } else if (t.id === 'back') {
+                    e.preventDefault();
+                    if (!dirty || confirm('Leave without saving your changes?')) showList();
+                }
+            });
+
+            fileInput.addEventListener('change', async () => {
+                const files = [...fileInput.files];
+                fileInput.value = '';
+                for (const file of files) {
+                    try {
+                        const blob = await resizePhoto(file);
+                        photos.push({ blob, url: URL.createObjectURL(blob) });
+                        dirty = true;
+                    } catch (err) {
+                        msg.innerHTML = notice(`${file.name}: ${err.message}`, true);
+                    }
+                }
+                renderPhotos();
+            });
+
+            const del = document.getElementById('delete');
+            if (del) {
+                del.addEventListener('click', async () => {
+                    if (!confirm(`Delete "${entry.title}"? This removes it from the site for good.`)) return;
+                    del.disabled = true;
+                    try {
+                        await authed(`entries/${encodeURIComponent(entry.id)}`, { method: 'DELETE' });
+                        showList(`Deleted "${entry.title}".`);
+                    } catch (err) {
+                        if (!handleAuthError(err)) {
+                            msg.innerHTML = notice(err.message, true);
+                            del.disabled = false;
+                        }
+                    }
+                });
+            }
+
+            form.addEventListener('submit', async e => {
+                e.preventDefault();
+                readForm();
+                const save = document.getElementById('save');
+                save.disabled = true;
+                try {
+                    // Upload any new photos first, keeping their order
+                    for (let i = 0; i < photos.length; i++) {
+                        const p = photos[i];
+                        if (p.id) continue;
+                        save.textContent = `Uploading photo ${i + 1} of ${photos.length}`;
+                        const res = await authed('photos', { method: 'POST', headers: { 'Content-Type': 'image/jpeg' }, body: p.blob });
+                        URL.revokeObjectURL(p.url);
+                        photos[i] = { id: res.id };
+                    }
+                    save.textContent = 'Saving';
+                    const keys = ['title', 'standfirst', 'date', 'notes'].concat(
+                        FORMS[type].flatMap(f => f.two ? f.two.map(x => x.key) : [f.key]));
+                    const payload = { type, photos: photos.map(p => p.id) };
+                    keys.forEach(k => { payload[k] = data[k] || ''; });
+                    const saved = await authed(isNew ? 'entries' : `entries/${encodeURIComponent(entry.id)}`, {
+                        method: isNew ? 'POST' : 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    dirty = false;
+                    showList(isNew ? `Published "${saved.title}".` : `Saved "${saved.title}".`);
+                } catch (err) {
+                    if (!handleAuthError(err)) {
+                        msg.innerHTML = notice(err.message, true);
+                        save.disabled = false;
+                        save.textContent = isNew ? 'Publish' : 'Save changes';
+                        renderPhotos();
+                        window.scrollTo(0, 0);
+                    }
+                }
+            });
+
+            renderType();
+            renderPhotos();
+            window.scrollTo(0, 0);
+        }
+
+        document.getElementById('logout').addEventListener('click', () => {
+            setPassphrase(null);
+            showLogin();
+        });
+
+        if (passphrase) {
+            document.getElementById('logout').hidden = false;
+            showList();
+        } else {
+            showLogin();
+        }
+    </script>
+</body>
+</html>
